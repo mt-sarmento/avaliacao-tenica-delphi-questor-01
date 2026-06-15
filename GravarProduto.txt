@@ -1,0 +1,67 @@
+type
+  TProduto = class
+  private
+    FCodigoProduto: Integer;
+    FDescricao: string;
+    FCodigoProdutoRegra: Integer;
+  public
+    constructor Create(ACodigoProduto: Integer; ADescricao: string; ACodigoProdutoRegra: Integer);
+    procedure Gravar;
+    property CodigoProduto: Integer read FCodigoProduto;
+    property Descricao: string read FDescricao;
+    property CodigoProdutoRegra: Integer read FCodigoProdutoRegra;
+  end;
+
+constructor TProduto.Create(ACodigoProduto: Integer; ADescricao: string; ACodigoProdutoRegra: Integer);
+begin
+  FCodigoProduto      := ACodigoProduto;
+  FDescricao          := ADescricao;
+  FCodigoProdutoRegra := ACodigoProdutoRegra;
+end;
+
+procedure TProduto.Gravar;
+var
+  LSQL: string;
+  LExiste: Boolean;
+begin
+
+  LSQL := 'SELECT COUNT(*) FROM PRODUTO WHERE CODIGOPRODUTO = ' + IntToStr(FCodigoProduto);
+  LExiste := ExecutarSql(LSQL) > 0;
+
+  if LExiste then
+    Writeln('Produto ' + IntToStr(FCodigoProduto) + ' - ' + FDescricao + ': ja existe no banco, ignorado.')
+  else
+  begin
+    GravarProduto(
+      'INSERT INTO PRODUTO (CODIGOPRODUTO, DESCRICAO, CODIGOPRODUTOREGRA) VALUES (' +
+      IntToStr(FCodigoProduto) + ', ' +
+      QuotedStr(FDescricao) + ', ' +
+      IntToStr(FCodigoProdutoRegra) + ')'
+    );
+    Writeln('Produto ' + IntToStr(FCodigoProduto) + ' - ' + FDescricao + ': inserido com sucesso.');
+  end;
+end;
+
+var
+  Produtos: array[1..10] of TProduto;
+  I: Integer;
+begin
+  Produtos[1]  := TProduto.Create(1,  'Arroz',       1);
+  Produtos[2]  := TProduto.Create(2,  'Feijao',      1);
+  Produtos[3]  := TProduto.Create(3,  'Macarrao',    2);
+  Produtos[4]  := TProduto.Create(4,  'Oleo',        2);
+  Produtos[5]  := TProduto.Create(5,  'Sal',         3);
+  Produtos[6]  := TProduto.Create(6,  'Acucar',      3);
+  Produtos[7]  := TProduto.Create(7,  'Cafe',        4);
+  Produtos[8]  := TProduto.Create(8,  'Farinha',     4);
+  Produtos[9]  := TProduto.Create(9,  'Leite',       5);
+  Produtos[10] := TProduto.Create(10, 'Manteiga',    5);
+
+  for I := 1 to 10 do
+    Produtos[I].Gravar;
+
+  for I := 1 to 10 do
+    Produtos[I].Free;
+
+  Readln;
+end.
