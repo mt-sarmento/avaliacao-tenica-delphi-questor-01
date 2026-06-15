@@ -1,4 +1,4 @@
--- 1. Criacao das tabelas
+-- 1) Criacao das tabelas
 
 CREATE TABLE CLIENTES (
     CODIGOCLIENTE INTEGER NOT NULL PRIMARY KEY,
@@ -19,7 +19,7 @@ CREATE TABLE VENDA (
     FOREIGN KEY (CODIGOCLIENTE) REFERENCES CLIENTES(CODIGOCLIENTE),
     FOREIGN KEY (CODIGOCARRO) REFERENCES CARRO(CODIGOCARRO))
 
--- 2. Quantidade de vendas do carro Marea
+-- 2) Quantidade de vendas do carro Marea
 
 SELECT COUNT(*) AS QTDVENDAS
   FROM VENDA V
@@ -27,7 +27,7 @@ SELECT COUNT(*) AS QTDVENDAS
     ON C.CODIGOCARRO = V.CODIGOCARRO
  WHERE C.MODELO = 'Marea'
 
--- 3. Quantidade de vendas do carro Uno por cliente
+-- 3) Quantidade de vendas do carro Uno por cliente
 
 SELECT CL.NOMECLIENTE, COUNT(*) AS QTDVENDAS
   FROM VENDA V
@@ -38,14 +38,14 @@ SELECT CL.NOMECLIENTE, COUNT(*) AS QTDVENDAS
  WHERE C.MODELO = 'Uno'
  GROUP BY CL.CODIGOCLIENTE, CL.NOMECLIENTE
 
--- 4. Clientes que não efetuaram venda
+-- 4) Clientes que não efetuaram venda
 
 SELECT CL.CODIGOCLIENTE, CL.NOMECLIENTE
   FROM CLIENTES CL
   LEFT JOIN VENDA V ON V.CODIGOCLIENTE = CL.CODIGOCLIENTE
  WHERE V.CODIGOCLIENTE IS NULL
 
--- 5. Clientes sorteados
+-- 5) Clientes sorteados
 
 SELECT FIRST 15
        CL.CODIGOCLIENTE
@@ -65,3 +65,22 @@ SELECT FIRST 15
                                   GROUP BY V2.CODIGOCLIENTE
                                   HAVING COUNT(*) >= 2)
  ORDER BY V.DATAVENDA ASC
+
+-- 2- Exclusao não sorteados
+
+DELETE FROM VENDA V
+ WHERE NOT EXISTS (SELECT 1
+                     FROM VENDA V2
+                    INNER JOIN CLIENTES CL
+                       ON CL.CODIGOCLIENTE = V2.CODIGOCLIENTE
+                    INNER JOIN CARRO C 
+                       ON C.CODIGOCARRO = V2.CODIGOCARRO
+                    WHERE V2.CODIGOCLIENTE = V.CODIGOCLIENTE
+                      AND C.MODELO = 'Marea'
+                      AND EXTRACT(YEAR FROM C.DATALANCAMENTO) = 2021
+                      AND CL.CPFCLIENTE LIKE '0%'
+                      AND (SELECT COUNT(*)
+                             FROM VENDA V3
+                            INNER JOIN CARRO C3 ON C3.CODIGOCARRO = V3.CODIGOCARRO
+                            WHERE V3.CODIGOCLIENTE = V2.CODIGOCLIENTE
+                              AND C3.MODELO = 'Marea') < 2)
