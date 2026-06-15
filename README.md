@@ -1,7 +1,7 @@
 ## Avaliação Técnica Questor - Programador Delphi
 
 ### 01 - SQL
-- [script.sql](script.sql) - Criação das tabelas, consultas
+- [script.sql](script.sql) - Criação das tabelas, consultas e exclusão
 
 ### 02 - Delphi
 - [avaliacaodelphiquestor01.lpr](avaliacaodelphiquestor01.lpr) - Classes e inserções
